@@ -1,0 +1,97 @@
+@import "tailwindcss";
+
+@theme {
+  --font-display: "Cormorant Garamond", Georgia, "Times New Roman", serif;
+  --font-sans: "Noto Sans KR", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+
+  --color-obsidian: #080B09;
+  --color-emerald-deep: #09271E;
+  --color-emerald-primary: #092A21;
+  --color-emerald-secondary: #104333;
+  --color-emerald-accent: #14513C;
+  --color-surface: #121D18;
+  --color-surface-elevated: #171C19;
+  --color-gold: #C6A45A;
+  --color-gold-light: #E8D29A;
+  --color-ivory: #F3F0E7;
+  --color-muted: #A9B2AA;
+  --color-hairline: #34463B;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    background-color: #080B09;
+    color: #F3F0E7;
+    font-family: var(--font-sans);
+    overflow-x: clip;
+  }
+
+  body {
+    background-color: #080B09;
+    color: #F3F0E7;
+    letter-spacing: 0.005em;
+    line-height: 1.7;
+    overflow-x: clip;
+  }
+
+  h1, h2, h3, h4 {
+    text-wrap: balance;
+  }
+
+  :focus-visible {
+    outline: 2px solid #E8D29A;
+    outline-offset: 3px;
+  }
+}
+
+.font-display {
+  font-family: var(--font-display);
+}
+
+.font-mono-tabular {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.luxury-grain {
+  background-image:
+    radial-gradient(circle at 20% 20%, rgba(20, 81, 60, 0.16) 0%, transparent 55%),
+    radial-gradient(circle at 80% 0%, rgba(198, 164, 90, 0.08) 0%, transparent 45%);
+}
+
+.gold-rule {
+  height: 1px;
+  background: linear-gradient(90deg, rgba(198, 164, 90, 0.65), rgba(198, 164, 90, 0.18) 65%, transparent);
+}
+
+.timeline-scroll::-webkit-scrollbar {
+  height: 6px;
+}
+
+.timeline-scroll::-webkit-scrollbar-track {
+  background: #121D18;
+}
+
+.timeline-scroll::-webkit-scrollbar-thumb {
+  background: #34463B;
+  border-radius: 3px;
+}
+
+.timeline-scroll::-webkit-scrollbar-thumb:hover {
+  background: #C6A45A;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

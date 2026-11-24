@@ -1,0 +1,8 @@
+{
+  "name": "릴게임 — 프리미엄 릴게임 전문 정보 매거진",
+  "description": "한국 릴게임의 역사와 대표 게임 8종, 심볼 아카이브, 슬롯머신 비교, 게임산업법 및 이용자 안전 정보를 체계적으로 정리한 전문 아카이브 매거진.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
