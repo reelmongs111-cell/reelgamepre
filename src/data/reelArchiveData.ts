@@ -114,7 +114,7 @@ export const EDITORIAL_META = {
   brand: 'REEL ARCHIVE',
   subtitle: 'PREMIUM GAME ENCYCLOPEDIA',
   publishedDate: '2026-03-15',
-  updatedDate: '2026-11-23',
+  updatedDate: '2026-11-24',
   editorialDepartment: 'REEL ARCHIVE 편찬연구실',
   policyNote:
     '본 아카이브는 한국 릴게임의 산업사·시각문화·제도적 규제를 기록하는 비영리 정보 매거진입니다. 확인되지 않은 확률·배당·환수율 수치를 임의로 생성하지 않으며, 법률 정보는 법제처 및 공공기관의 공식 문서를 기준으로 구분하여 서술합니다.',

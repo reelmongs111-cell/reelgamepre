@@ -25,12 +25,24 @@ function escapeHtml(input: string): string {
 }
 
 function getBaseOrigin(req: express.Request): string {
+  const forwardedProto = (req.headers['x-forwarded-proto'] as string | undefined)
+    ?.split(',')[0]
+    ?.trim();
+  const proto = forwardedProto || req.protocol || 'https';
+  const forwardedHost = (req.headers['x-forwarded-host'] as string | undefined)
+    ?.split(',')[0]
+    ?.trim();
+  const host = forwardedHost || req.get('host') || '';
+
+  if (host && !host.startsWith('localhost') && !host.startsWith('127.0.0.1')) {
+    return `${proto}://${host}`;
+  }
+
   if (process.env.APP_URL && process.env.APP_URL !== 'MY_APP_URL') {
     return process.env.APP_URL.replace(/\/+$/, '');
   }
-  const proto = (req.headers['x-forwarded-proto'] as string) || req.protocol || 'https';
-  const host = req.get('host') || `localhost:${PORT}`;
-  return `${proto}://${host}`;
+
+  return `${proto}://${host || `localhost:${PORT}`}`;
 }
 
 function renderSeoHeadTags(pathname: string, origin: string): {
@@ -137,22 +149,36 @@ function injectHtmlSeo(template: string, pathname: string, origin: string): stri
 
 async function startServer() {
   const app = express();
+  app.set('trust proxy', true);
 
   app.get('/robots.txt', (req, res) => {
     const origin = getBaseOrigin(req);
-    res.type('text/plain; charset=utf-8').send(
-      `User-agent: *\nAllow: /\n\nSitemap: ${origin}/sitemap.xml\n`,
-    );
+    res
+      .status(200)
+      .set({
+        'Content-Type': 'text/plain; charset=utf-8',
+        'Cache-Control': 'public, max-age=3600',
+        'X-Content-Type-Options': 'nosniff',
+      })
+      .send(`User-agent: *\nAllow: /\n\nSitemap: ${origin}/sitemap.xml\n`);
   });
 
-  app.get('/sitemap.xml', (req, res) => {
+  app.get(['/sitemap.xml', '/sitemap.xml/'], (req, res) => {
     const origin = getBaseOrigin(req);
     const urls = [
-      {loc: `${origin}/`, priority: '1.0', changefreq: 'weekly'},
+      {
+        loc: `${origin}/`,
+        priority: '1.0',
+        changefreq: 'weekly',
+        imageLoc: `${origin}/src/assets/images/hero_reel_lounge_1795504060176.jpg`,
+        imageTitle: 'REEL ARCHIVE — 한국 릴게임 아카이브 대표 이미지',
+      },
       ...GAMES_DATA.map((game) => ({
         loc: `${origin}/games/${game.slug}`,
         priority: '0.9',
         changefreq: 'monthly',
+        imageLoc: `${origin}${game.heroImage}`,
+        imageTitle: `${game.titleKo} (${game.titleEn}) 아카이브 이미지`,
       })),
       {loc: `${origin}/about`, priority: '0.6', changefreq: 'monthly'},
       {loc: `${origin}/privacy`, priority: '0.4', changefreq: 'yearly'},
@@ -160,20 +186,32 @@ async function startServer() {
     ];
 
     const xml = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
 ${urls
-  .map(
-    (entry) => `  <url>
+  .map((entry) => {
+    const imageBlock =
+      'imageLoc' in entry && entry.imageLoc
+        ? `\n    <image:image>\n      <image:loc>${escapeHtml(entry.imageLoc)}</image:loc>\n      <image:title>${escapeHtml(entry.imageTitle || '')}</image:title>\n    </image:image>`
+        : '';
+    return `  <url>
     <loc>${escapeHtml(entry.loc)}</loc>
     <lastmod>${EDITORIAL_META.updatedDate}</lastmod>
     <changefreq>${entry.changefreq}</changefreq>
-    <priority>${entry.priority}</priority>
-  </url>`,
-  )
+    <priority>${entry.priority}</priority>${imageBlock}
+  </url>`;
+  })
   .join('\n')}
 </urlset>`;
 
-    res.type('application/xml; charset=utf-8').send(xml);
+    res
+      .status(200)
+      .set({
+        'Content-Type': 'application/xml; charset=utf-8',
+        'Cache-Control': 'public, max-age=3600',
+        'X-Content-Type-Options': 'nosniff',
+      })
+      .send(xml);
   });
 
   if (!isProduction) {
